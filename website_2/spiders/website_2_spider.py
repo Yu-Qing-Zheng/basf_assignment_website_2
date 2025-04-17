@@ -20,8 +20,8 @@ class Website2Spider(scrapy.Spider):
     custom_settings = {
         "DOWNLOAD_DELAY": 2,
         # "CONCURRENT_REQUESTS": 1,
-        "RETRY_TIMES": 2,
-        'DOWNLOAD_TIMEOUT': 15,
+        "RETRY_TIMES": 5,
+        'DOWNLOAD_TIMEOUT': 120,
         'RETRY_ENABLED': True,
 
         "DEFAULT_REQUEST_HEADERS": {

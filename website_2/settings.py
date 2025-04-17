@@ -64,7 +64,7 @@ ROBOTSTXT_OBEY = True
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    "website_2.pipelines.SaveJsonPipeline": 300,
-#    "website_2.pipelines.SaveFilePipeline": 400,
+   "website_2.pipelines.SaveFilePipeline": 400,
    "website_2.pipelines.SaveHtmlPipeline": 500,
 }
 # IMAGES_STORE = './data'
