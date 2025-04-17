@@ -174,6 +174,3 @@ class SaveHtmlPipeline:
             spider.logger.error(f"Failed to save HTML: {e}")
 
         return item
-    
-
-

@@ -366,9 +366,9 @@ class Website2Spider(scrapy.Spider):
     def save_attachment(self, response):
 
         item = Website2Item()
-        item['file_urls'] = [response.url]
+        item['file_urls'] = [response.url.replace("viewerVID?p=", "")]
         meta = response.meta.copy()
-        meta['Attachment_URLs'] = [response.url]
+        meta['Attachment_URLs'] = [response.url.replace("viewerVID?p=", "")]
 
         item['meta'] = meta
 
@@ -379,9 +379,9 @@ class Website2Spider(scrapy.Spider):
         request = failure.request
         url = request.url
         item_err = Website2Item()
-        item_err['file_urls'] = [url]
+        item_err['file_urls'] = [url.replace("viewerVID?p=", "")]
         meta = request.meta.copy()
-        meta['Attachment_URLs'] = [url]
+        meta['Attachment_URLs'] = [url.replace("viewerVID?p=", "")]
         item_err['meta'] = meta
 
         print(f"timeout_meta:{meta}")
