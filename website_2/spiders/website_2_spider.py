@@ -59,6 +59,7 @@ class Website2Spider(scrapy.Spider):
         return spider
 
 
+    # use selenium to click "Carian" button
     def start_requests(self):
 
         # use selenium to get the dynamically rendered HTML of the first page
@@ -112,6 +113,7 @@ class Website2Spider(scrapy.Spider):
             self.driver.quit()
 
 
+    # get the formdata for POST
     @staticmethod
     def extract_all_formdata(response):
         
@@ -129,6 +131,7 @@ class Website2Spider(scrapy.Spider):
         return formdata
 
 
+    # POST different pages from 1 to self.page_limit
     def parse(self, response):
 
         # yield the current page 
@@ -179,6 +182,7 @@ class Website2Spider(scrapy.Spider):
                     #     },
 
 
+    # POST info targets to get the URL of info
     def parse_listing_page(self, response):
 
         # post info targets
@@ -220,6 +224,7 @@ class Website2Spider(scrapy.Spider):
                         self.logger.error(f"Failed to open Page {i}: {e}")    
 
 
+    # deal with "window.open" after POST to get the URL of info
     def window_open_detail_page(self, response):
 
         try:
@@ -235,6 +240,7 @@ class Website2Spider(scrapy.Spider):
             self.logger.error(f"Failed to get the URL of info: {e}")
 
 
+    # get metadata of each info
     def parse_metadata(self, response):
 
         meta = response.meta.copy()
@@ -347,6 +353,7 @@ class Website2Spider(scrapy.Spider):
             )
 
 
+    # deal with "window.open" after POST to get the URL of attachments
     def window_open_attachment(self, response):
 
         try:
@@ -363,6 +370,7 @@ class Website2Spider(scrapy.Spider):
             self.logger.error(f"Failed to get the URL of attachment: {e}")
 
     
+    # pass item to pipeline
     def save_attachment(self, response):
 
         item = Website2Item()
@@ -375,6 +383,7 @@ class Website2Spider(scrapy.Spider):
         yield item
 
 
+    # in case that there is timeout for self.window_open_attachment()
     def handle_timeout(self, failure):
         request = failure.request
         url = request.url
@@ -389,6 +398,7 @@ class Website2Spider(scrapy.Spider):
         yield item_err
 
 
+    # there are some info without attachments, empty item['file_urls']
     def no_attachment(self, response):
 
         item = Website2Item()
