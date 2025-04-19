@@ -81,7 +81,8 @@ class SaveFilePipeline(FilesPipeline):
         info_id = meta['Info_index']
         info_dir = f"page_{str(page_id)}/project_{str(info_id)}/attachment/"
 
-        real_name = Path(request.url.split("%2f")[-1]).name
+        real_name = meta["Button_title"]
+        # real_name = Path(request.url.split("%2f")[-1]).name
 
         # info_dir.mkdir(parents=True, exist_ok=True)
 

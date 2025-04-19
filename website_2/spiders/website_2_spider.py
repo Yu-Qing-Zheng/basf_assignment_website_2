@@ -20,8 +20,8 @@ class Website2Spider(scrapy.Spider):
     custom_settings = {
         "DOWNLOAD_DELAY": 2,
         # "CONCURRENT_REQUESTS": 1,
-        "RETRY_TIMES": 5,
-        'DOWNLOAD_TIMEOUT': 120,
+        "RETRY_TIMES": 2,
+        'DOWNLOAD_TIMEOUT': 30,
         'RETRY_ENABLED': True,
 
         "DEFAULT_REQUEST_HEADERS": {
@@ -306,6 +306,7 @@ class Website2Spider(scrapy.Spider):
         buttons = response.xpath(button_str)
         if buttons:
             for i, button in enumerate(buttons):
+                button_title = button.xpath('a/text()').get()
                 href = button.xpath('a/@href').get()
                 if href and '__doPostBack' in href:
 
@@ -322,6 +323,7 @@ class Website2Spider(scrapy.Spider):
                         formdata['__EVENTTARGET'] = event_target
                         formdata['__EVENTARGUMENT'] = ""
                         metadata['Attachment_index'] = i+1
+                        metadata['Button_title'] = button_title
 
                         yield scrapy.FormRequest(
                             url=response.url,
@@ -359,6 +361,7 @@ class Website2Spider(scrapy.Spider):
         try:
             file_url = re.search(r"window\.open\('([^']+)'", response.text).group(1)
             full_url = response.urljoin(file_url)
+            
             yield scrapy.Request(
                 url=full_url,
                 callback=self.save_attachment,
@@ -374,9 +377,17 @@ class Website2Spider(scrapy.Spider):
     def save_attachment(self, response):
 
         item = Website2Item()
-        item['file_urls'] = [response.url.replace("viewerVID?p=", "")]
+        file_url = response.url
+        if "epub" in file_url:
+            pdf_path = response.xpath('//input[@id="inpHide"]/@value').get()
+            file_url = response.urljoin(pdf_path)
+        else:
+            file_url = file_url.replace("viewerVID?p=", "")
+            file_url = file_url.replace("https://docs.google.com/viewerng/viewer?url=", "")
+        
+        item['file_urls'] = [file_url]
         meta = response.meta.copy()
-        meta['Attachment_URLs'] = [response.url.replace("viewerVID?p=", "")]
+        meta['Attachment_URLs'] = [file_url]
 
         item['meta'] = meta
 
@@ -386,11 +397,15 @@ class Website2Spider(scrapy.Spider):
     # in case that there is timeout for self.window_open_attachment()
     def handle_timeout(self, failure):
         request = failure.request
-        url = request.url
         item_err = Website2Item()
-        item_err['file_urls'] = [url.replace("viewerVID?p=", "")]
+        file_url = request.url
+
+        file_url = file_url.replace("viewerVID?p=", "")
+        file_url = file_url.replace("https://docs.google.com/viewerng/viewer?url=", "")
+
+        item_err['file_urls'] = [file_url]
         meta = request.meta.copy()
-        meta['Attachment_URLs'] = [url.replace("viewerVID?p=", "")]
+        meta['Attachment_URLs'] = [file_url]
         item_err['meta'] = meta
 
         print(f"timeout_meta:{meta}")
@@ -409,6 +424,4 @@ class Website2Spider(scrapy.Spider):
         print(f"missing_meta:{meta}")
 
         item['meta'] = meta
-        yield item
-        
-        
+        yield item   
